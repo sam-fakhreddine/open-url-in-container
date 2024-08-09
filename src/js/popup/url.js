@@ -6,6 +6,6 @@ import { el } from './dom.js'
 
 const URL_INPUT_ID = 'urlInput'
 
-export function updateURL(qs) {
+export const updateURL = (qs) => {
     el(URL_INPUT_ID).value = `ext+container:${qs.toString()}`
 }

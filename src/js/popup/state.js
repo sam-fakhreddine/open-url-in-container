@@ -4,7 +4,7 @@
 
 export class State {
     constructor(initialState, callback) {
-        this._state = initialState
+        this._state = { ...initialState }
         this._callback = callback
     }
 
@@ -13,8 +13,8 @@ export class State {
         this._state = { ...this._state, ...update }
         this._callback({
             newState: { ...this._state },
-            oldState: oldState,
-            update: { ...update }
+            oldState,
+            update: { ...update },
         })
     }
 

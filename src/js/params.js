@@ -4,56 +4,61 @@
 
 import { generateSignature, verifySignature } from './security/signature.js'
 
-export class SignatureError extends Error { }
+export class SignatureError extends Error {}
 
 export class OpenerParameters {
-    constructor({
-        id,
-        name,
-        color,
-        icon,
-        url,
-        index,
-        pinned,
-        openInReaderMode,
-    }) {
+    constructor({ id, name, color, icon, url, index, pinned, openInReaderMode }) {
         this._data = {
             // container properties
-            id: id,
-            name: name,
-            color: color,
-            icon: icon,
+            id,
+            name,
+            color,
+            icon,
 
             // tab properties
-            url: url,
-            index: index,
-            pinned: pinned,
-            openInReaderMode: openInReaderMode,
+            url,
+            index,
+            pinned,
+            openInReaderMode,
         }
     }
 
     // container properties
-    get id() { return this._data.id }
-    get name() { return this._data.name }
-    get color() { return this._data.color }
-    get icon() { return this._data.icon }
+    get id() {
+        return this._data.id
+    }
+    get name() {
+        return this._data.name
+    }
+    get color() {
+        return this._data.color
+    }
+    get icon() {
+        return this._data.icon
+    }
 
-    // tab propertiese
-    get url() { return this._data.url }
-    get index() { return this._data.index }
-    get pinned() { return this._data.pinned }
-    get openInReaderMode() { return this._data.openInReaderMode }
+    // tab properties
+    get url() {
+        return this._data.url
+    }
+    get index() {
+        return this._data.index
+    }
+    get pinned() {
+        return this._data.pinned
+    }
+    get openInReaderMode() {
+        return this._data.openInReaderMode
+    }
 
     toQueryString() {
         const qs = new URLSearchParams()
 
-        for (let k of Object.keys(this._data)) {
-            if (this._data[k]) {
-                qs.set(k, this._data[k])
+        Object.keys(this._data).forEach((key) => {
+            if (this._data[key]) {
+                qs.set(key, this._data[key])
             }
-        }
-
-        qs.sort()
+        })
 
         return qs
     }
@@ -65,7 +70,7 @@ export class OpenerParameters {
 
         return {
             queryString: qs,
-            signature: signature,
+            signature,
         }
     }
 
@@ -80,7 +85,7 @@ export class OpenerParameters {
 
 export class SignedQueryString extends URLSearchParams {
     set signature(signature) {
-        this.set(signature)
+        this.set('signature', signature)
     }
 
     get signature() {

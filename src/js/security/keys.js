@@ -5,23 +5,28 @@
 import { hex2array, array2hex } from './hex.js'
 
 async function exportKey(key) {
-    return array2hex(await window.crypto.subtle.exportKey('raw', key))
+    const rawKey = await window.crypto.subtle.exportKey('raw', key)
+    return array2hex(rawKey)
 }
 
 export async function importKey(rawHexKey) {
     const rawKey = hex2array(rawHexKey)
-    return await window.crypto.subtle.importKey('raw', rawKey,
-        { name: 'HMAC', 'hash': 'SHA-256', length: 256 },
+    const key = await window.crypto.subtle.importKey(
+        'raw',
+        rawKey,
+        { name: 'HMAC', hash: { name: 'SHA-256' } },
         true,
         ['sign', 'verify']
     )
+    return key
 }
+
 
 export async function generateKey() {
-    return await exportKey(await window.crypto.subtle.generateKey(
-        { name: 'HMAC', 'hash': 'SHA-256', length: 256 },
+    const key = await window.crypto.subtle.generateKey(
+        { name: 'HMAC', hash: { name: 'SHA-256' }, length: 256 },
         true,
         ['sign', 'verify']
-    ))
+    )
+    return exportKey(key)
 }
-

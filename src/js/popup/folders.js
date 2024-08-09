@@ -6,33 +6,32 @@ import { saveState, restoreState, POPUP_FOLDER_STATE } from '../config.js'
 import { State } from './state.js'
 import { el } from './dom.js'
 
-function updateFolderFoldingState({ newState, update }) { // eslint-disable-line no-unused-vars
+const updateFolderFoldingState = ({ newState, update }) => {
     saveState(POPUP_FOLDER_STATE, newState)
 
-    for (let id of Object.keys(update)) {
+    Object.keys(update).forEach((id) => {
         if (newState[id]) {
             el(id).classList.remove('folded')
         } else {
             el(id).classList.add('folded')
         }
-    }
+    })
 }
 
-function setupFolderFoldingListeners(s) {
+const setupFolderFoldingListeners = (s) => {
     const folderIds = Object.keys(s.state())
-    for (let i = 0; i < folderIds.length; i++) {
-        const folderId = folderIds[i]
-        el(folderId).querySelector('.title').onclick = function () {
+    folderIds.forEach((folderId) => {
+        el(folderId).querySelector('.title').onclick = () => {
             const state = s.state()
             s.update({
-                [folderId]: !state[folderId]
+                [folderId]: !state[folderId],
             })
         }
-    }
+    })
 }
 
-export async function setupFolderFolding() {
-    // update folder state
+export const setupFolderFolding = async () => {
+    // Initial folder state
     const initialState = {
         containerFolder: true,
         bookmarkFolder: true,
@@ -40,6 +39,8 @@ export async function setupFolderFolding() {
         terminalFolder: false,
         signatureFolder: false,
     }
+
+    // Restore saved folder state
     const folderState = {
         ...initialState,
         ...await restoreState(POPUP_FOLDER_STATE, initialState),
@@ -47,9 +48,9 @@ export async function setupFolderFolding() {
 
     updateFolderFoldingState({
         newState: folderState,
-        update: folderState
+        update: folderState,
     })
 
-    // setup callbacks
+    // Set up folder folding listeners
     setupFolderFoldingListeners(new State(folderState, updateFolderFoldingState))
 }

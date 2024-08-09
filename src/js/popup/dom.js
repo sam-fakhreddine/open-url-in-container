@@ -2,18 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export function hide(id) {
+export const hide = (id) => {
     document.getElementById(id).classList.add('hidden')
 }
 
-export function show(id) {
+export const show = (id) => {
     document.getElementById(id).classList.remove('hidden')
 }
 
-export function toggle(id) {
+export const toggle = (id) => {
     document.getElementById(id).classList.toggle('hidden')
 }
 
-export function el(id) {
-    return document.getElementById(id)
-}
+export const el = (id) => document.getElementById(id)

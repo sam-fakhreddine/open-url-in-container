@@ -8,27 +8,29 @@ import { newTab, closeCurrentTab } from '../tabs.js'
 import { SignatureError, OpenerParameters } from '../params.js'
 import { parseOpenerParams } from './parser.js'
 
-function error(e) {
+const error = (e) => {
     console.error(e)
-
     document.getElementById('internalErrorBody').textContent = e
     document.getElementById('internalErrorContainer').classList.remove('hidden')
 }
 
-async function openTabInContainer(params) {
+const openTabInContainer = async (params) => {
     await newTab(await prepareContainer(params), params)
 }
 
-function requestConfirmation(params) {
-    document.getElementById('securityConfirmationContainerName').textContent = params.name
+const requestConfirmation = (params) => {
+    document.getElementById('securityConfirmationContainerName').textContent =
+    params.name
     document.getElementById('securityConfirmationUrl').textContent = params.url
-    document.getElementById('securityConfirmationContainer').classList.remove('hidden')
+    document
+        .getElementById('securityConfirmationContainer')
+        .classList.remove('hidden')
 
-    document.getElementById('securityConfirmationConfirm').onclick = function () {
+    document.getElementById('securityConfirmationConfirm').onclick = () => {
         openTabInContainer(params)
     }
 
-    document.getElementById('securityConfirmationGoBack').onclick = async function () {
+    document.getElementById('securityConfirmationGoBack').onclick = async () => {
         if (window.history.length > 1) {
             window.history.back()
         } else {
@@ -37,30 +39,28 @@ function requestConfirmation(params) {
     }
 }
 
-async function main() {
+const main = async () => {
     try {
-        // get extension parameters
+    // Get extension parameters
         const parsedParams = parseOpenerParams(window.location.hash)
         const openerParams = new OpenerParameters(parsedParams)
 
-        // verify input signature to prevent clickjacking
+        // Verify input signature to prevent clickjacking
         try {
             await openerParams.verify(await getSigningKey(), parsedParams.signature)
         } catch (e) {
             if (e instanceof SignatureError) {
-                // require user confirmation if signature verification failed
+                // Require user confirmation if signature verification failed
                 requestConfirmation(openerParams)
                 return
             }
-
             throw e
         }
 
-        // finally, open a new tab
+        // Finally, open a new tab
         openTabInContainer(openerParams)
     } catch (e) {
         error(e)
-        return
     }
 }
 

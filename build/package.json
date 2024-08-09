@@ -1,8 +1,8 @@
 {
-    "name": "open-url-in-container",
+    "name": "firefix-url-open-in-container",
     "author": {
-        "name": "Denys Honsiorovskyi",
-        "url": "https://github.com/honsiorovskyi"
+        "name": "Sam Fakhreddine",
+        "url": "https://github.com/sam-fakhreddine"
     },
     "repository": {
         "url": "https://github.com/honsiorovskyi/open-url-in-container"
@@ -15,6 +15,6 @@
     },
     "devDependencies": {
         "eslint": "^7.0.0",
-        "web-ext": "^4.2.0"
+        "web-ext": "^8.2.0"
     }
 }

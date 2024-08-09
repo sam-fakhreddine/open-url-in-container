@@ -15,37 +15,34 @@ const availableContainerColors = [
 ]
 
 function randomColor() {
-    return availableContainerColors[Math.random() * availableContainerColors.length | 0]
+    return availableContainerColors[
+        Math.floor(Math.random() * availableContainerColors.length)
+    ]
 }
-
 
 async function getContainerByName(name) {
-    const containers = await browser.contextualIdentities.query({
-        name: name,
-    })
+    const containers = await browser.contextualIdentities.query({ name })
 
-    if (containers.length >= 1) {
-        return containers[0]
-    }
-
-    return null
+    return containers.length ? containers[0] : null
 }
 
-function lookupContainer({ id, name }) {
+async function lookupContainer({ id, name }) {
     if (id) {
-        return browser.contextualIdentities.get(id)
+        return await browser.contextualIdentities.get(id)
     }
 
     if (name) {
-        return getContainerByName(name)
+        return await getContainerByName(name)
     }
 
-    throw new Error('looking up container: neither id, nor name is present in the params')
+    throw new Error(
+        'Looking up container: neither id nor name is present in the params'
+    )
 }
 
 function createContainer({ name, color, icon }) {
     return browser.contextualIdentities.create({
-        name: name,
+        name,
         color: color || randomColor(),
         icon: icon || defaultIcon,
     })
@@ -54,9 +51,5 @@ function createContainer({ name, color, icon }) {
 export async function prepareContainer({ id, name, color, icon }) {
     const container = await lookupContainer({ id, name })
 
-    if (!container) {
-        return createContainer({ name, color, icon })
-    }
-
-    return container
+    return container || createContainer({ name, color, icon })
 }

@@ -4,20 +4,17 @@
 
 export async function newTab(container, params) {
     try {
-        let browserInfo = await browser.runtime.getBrowserInfo()
-        let currentTab = await browser.tabs.getCurrent()
+        const browserInfo = await browser.runtime.getBrowserInfo()
+        const currentTab = await browser.tabs.getCurrent()
 
-        let createTabParams = {
+        const createTabParams = {
             cookieStoreId: container.cookieStoreId,
             url: params.url,
-            index: params.index || currentTab.index + 1,
+            index: params.index ?? currentTab.index + 1,
             pinned: params.pinned,
-        }
-
-        if (browserInfo.version >= 58) {
-            createTabParams.openInReaderMode = params.openInReaderMode
-        } else {
-            console.warn('openInReaderMode parameter is not supported in Firefox < 58')
+            ...browserInfo.version >= 58 && {
+                openInReaderMode: params.openInReaderMode,
+            },
         }
 
         await browser.tabs.create(createTabParams)
@@ -28,13 +25,22 @@ export async function newTab(container, params) {
 }
 
 export async function closeCurrentTab() {
-    let currentTab = await browser.tabs.getCurrent()
-    await browser.tabs.remove(currentTab.id)
+    try {
+        const currentTab = await browser.tabs.getCurrent()
+        await browser.tabs.remove(currentTab.id)
+    } catch (e) {
+        throw new Error(`closing current tab: ${e}`)
+    }
 }
 
 export async function getActiveTab() {
-    return (await browser.tabs.query({
-        active: true,
-        windowId: browser.windows.WINDOW_ID_CURRENT
-    }))[0]
+    try {
+        const activeTabs = await browser.tabs.query({
+            active: true,
+            windowId: browser.windows.WINDOW_ID_CURRENT,
+        })
+        return activeTabs[0]
+    } catch (e) {
+        throw new Error(`getting active tab: ${e}`)
+    }
 }

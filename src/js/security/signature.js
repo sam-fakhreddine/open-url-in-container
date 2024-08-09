@@ -9,13 +9,16 @@ export async function verifySignature(rawHexKey, signature, data) {
     const key = await importKey(rawHexKey)
     const signatureArray = hex2array(signature)
     const dataArray = new TextEncoder().encode(data)
-    return await window.crypto.subtle.verify('HMAC', key, signatureArray, dataArray)
+    return window.crypto.subtle.verify('HMAC', key, signatureArray, dataArray)
 }
 
 export async function generateSignature(rawHexKey, data) {
     const key = await importKey(rawHexKey)
-    const encoder = new TextEncoder()
-    const dataArray = encoder.encode(data)
-    const signatureArray = await window.crypto.subtle.sign('HMAC', key, dataArray)
+    const dataArray = new TextEncoder().encode(data)
+    const signatureArray = await window.crypto.subtle.sign(
+        'HMAC',
+        key,
+        dataArray
+    )
     return array2hex(signatureArray)
 }

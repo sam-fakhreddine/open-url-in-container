@@ -15,88 +15,97 @@ const SIGNING_KEY_TOGGLE = 'toggleSigningKey'
 const SIGNING_KEY_CONTAINER = 'signingKeyContainer'
 const SIGNING_KEY = 'signingKey'
 const REGENERATE_SIGNING_KEY = 'regenerateSigningKey'
-const SIGNING_KEY_REGENERATION_CONFIRMATION = 'signingKeyRegenerationConfirmation'
-const SIGNING_KEY_REGENERATION_CONFIRMATION_CONFIRM = 'signingKeyRegenerationConfirmationConfirm'
-const SIGNING_KEY_REGENERATION_CONFIRMATION_CANCEL = 'signingKeyRegenerationConfirmationCancel'
+const SIGNING_KEY_REGENERATION_CONFIRMATION =
+  'signingKeyRegenerationConfirmation'
+const SIGNING_KEY_REGENERATION_CONFIRMATION_CONFIRM =
+  'signingKeyRegenerationConfirmationConfirm'
+const SIGNING_KEY_REGENERATION_CONFIRMATION_CANCEL =
+  'signingKeyRegenerationConfirmationCancel'
 
-function updateContainerList(containers, state) {
+const updateContainerList = (containers, state) => {
     const parent = el(CONTAINER_ELEMENT_ID)
-    for (var i = 0; i < containers.length; i++) {
+    parent.innerHTML = '' // Clear existing options
+    containers.forEach((container) => {
         const option = document.createElement('OPTION')
-        option.value = containers[i].cookieStoreId
-
-        if (containers[i].cookieStoreId === state.selectedContainerId) {
-            option.selected = true
-        }
-
-        const optionName = document.createTextNode(containers[i].name)
-        option.appendChild(optionName)
-
+        option.value = container.cookieStoreId
+        option.selected = container.cookieStoreId === state.selectedContainerId
+        option.appendChild(document.createTextNode(container.name))
         parent.appendChild(option)
-    }
+    })
 }
 
-export function updateContainerOptions(state) {
+export const updateContainerOptions = (state) => {
     el(USE_CONTAINER_ID).checked = state.useContainerId
     el(USE_CONTAINER_NAME).checked = state.useContainerName
+    el(USE_HOSTNAME_FOR_CONTAINER_NAME).checked =
+    state.useHostnameForContainerName
 
-    el(USE_HOSTNAME_FOR_CONTAINER_NAME).checked = state.useHostnameForContainerName
-
-    el(USE_CONTAINER_ID).disabled = state.useContainerId && !state.useContainerName
-    el(USE_CONTAINER_NAME).disabled = state.useContainerName && !state.useContainerId
-
+    el(USE_CONTAINER_ID).disabled =
+    state.useContainerId && !state.useContainerName
+    el(USE_CONTAINER_NAME).disabled =
+    state.useContainerName && !state.useContainerId
     el(CONTAINER_ELEMENT_ID).disabled = state.useHostnameForContainerName
 }
 
-async function updateSigningKey() {
-    el(SIGNING_KEY).value = await getSigningKey()
+const updateSigningKey = async () => {
+    try {
+        el(SIGNING_KEY).value = await getSigningKey()
+    } catch (error) {
+        console.error('Error updating signing key:', error)
+    }
 }
 
-export function updateContainerSelector(containers, state) {
+export const updateContainerSelector = (containers, state) => {
     updateContainerList(containers, state)
     updateContainerOptions(state)
 }
 
-export function setupContainerSelector(containers, s) {
-    el(CONTAINER_ELEMENT_ID).onchange = function (e) {
-        const container = containers.find(c => c.cookieStoreId === e.target.value)
+export const setupContainerSelector = (containers, s) => {
+    el(CONTAINER_ELEMENT_ID).onchange = (e) => {
+        const container = containers.find(
+            (c) => c.cookieStoreId === e.target.value
+        )
         s.update({ selectedContainerId: container.cookieStoreId })
     }
 
-    el(USE_CONTAINER_ID).onchange = function (e) {
+    el(USE_CONTAINER_ID).onchange = (e) => {
         s.update({ useContainerId: e.target.checked })
     }
 
-    el(USE_CONTAINER_NAME).onchange = function (e) {
+    el(USE_CONTAINER_NAME).onchange = (e) => {
         s.update({ useContainerName: e.target.checked })
     }
 
-    el(USE_HOSTNAME_FOR_CONTAINER_NAME).onchange = function (e) {
+    el(USE_HOSTNAME_FOR_CONTAINER_NAME).onchange = (e) => {
         s.update({ useHostnameForContainerName: e.target.checked })
     }
 
-    el(SIGNING_KEY_REGENERATION_CONFIRMATION_CONFIRM).onclick = async function () {
-        await regenerateSigningKey()
-        s.update({}) // trigger an empty update to refresh links
-        updateSigningKey()
-        hide(SIGNING_KEY_REGENERATION_CONFIRMATION)
+    el(SIGNING_KEY_REGENERATION_CONFIRMATION_CONFIRM).onclick = async () => {
+        try {
+            await regenerateSigningKey()
+            s.update({}) // trigger an empty update to refresh links
+            updateSigningKey()
+            hide(SIGNING_KEY_REGENERATION_CONFIRMATION)
+        } catch (error) {
+            console.error('Error regenerating signing key:', error)
+        }
     }
 
-    el(SIGNING_KEY_REGENERATION_CONFIRMATION_CANCEL).onclick = function () {
+    el(SIGNING_KEY_REGENERATION_CONFIRMATION_CANCEL).onclick = () => {
         hide(SIGNING_KEY_REGENERATION_CONFIRMATION)
     }
 
     // pure UI
-    el(CONTAINER_OPTIONS_TOGGLE).onclick = function () {
+    el(CONTAINER_OPTIONS_TOGGLE).onclick = () => {
         toggle(CONTAINER_OPTIONS)
     }
 
-    el(SIGNING_KEY_TOGGLE).onclick = function () {
+    el(SIGNING_KEY_TOGGLE).onclick = () => {
         updateSigningKey()
         toggle(SIGNING_KEY_CONTAINER)
     }
 
-    el(REGENERATE_SIGNING_KEY).onclick = function () {
+    el(REGENERATE_SIGNING_KEY).onclick = () => {
         toggle(SIGNING_KEY_REGENERATION_CONFIRMATION)
     }
 }

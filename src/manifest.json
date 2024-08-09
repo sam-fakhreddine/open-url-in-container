@@ -1,8 +1,8 @@
 {
     "manifest_version": 2,
-    "name": "Open links in containers",
+    "name": "Open Links in Firefox Containers",
     "description": "This extension enables support for opening links in specific containers using custom protocol handler. It works for bookmars, terminal, OS shortcuts and regular HTML pages.",
-    "version": "2.0.0alpha10",
+    "version": "0.9.0",
 
     "browser_specific_settings": {
         "gecko": {
@@ -18,13 +18,13 @@
 
     "protocol_handlers": [{
         "protocol": "ext+container",
-        "name": "Open links in containers",
+        "name": "Open Links in Firefox Containers",
         "uriTemplate": "/opener.html#%s"
     }],
 
     "page_action": {
         "default_icon": "icons/extension-19.png",
-        "default_title": "Open links in containers",
+        "default_title": "Open Links in Firefox Containers",
         "default_popup": "popup.html",
         "browser_style": true,
         "show_matches": ["<all_urls>"]

@@ -6,6 +6,6 @@ import { el } from './dom.js'
 
 const SIGNATURE_INPUT_ID = 'signatureInput'
 
-export function updateSignatureCommand(signature) {
+export const updateSignatureCommand = (signature) => {
     el(SIGNATURE_INPUT_ID).value = signature
 }

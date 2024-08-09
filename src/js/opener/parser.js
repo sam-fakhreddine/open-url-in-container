@@ -12,9 +12,9 @@ import {
     oneOfOrEmpty,
 } from './validator.js'
 
-const customProtocolPrefix = 'ext+container:'
+const CUSTOM_PROTOCOL_PREFIX = 'ext+container:'
 
-const allowedContainerColors = [
+const ALLOWED_CONTAINER_COLORS = new Set([
     'blue',
     'turquoise',
     'green',
@@ -23,9 +23,9 @@ const allowedContainerColors = [
     'red',
     'pink',
     'purple',
-]
+])
 
-const allowedContainerIcons = [
+const ALLOWED_CONTAINER_ICONS = new Set([
     'fingerprint',
     'briefcase',
     'dollar',
@@ -38,7 +38,7 @@ const allowedContainerIcons = [
     'pet',
     'tree',
     'chill',
-]
+])
 
 const openerParamsSchema = {
     // signature
@@ -47,8 +47,8 @@ const openerParamsSchema = {
     // container params
     id: [],
     name: [],
-    color: [oneOfOrEmpty(allowedContainerColors)],
-    icon: [oneOfOrEmpty(allowedContainerIcons)],
+    color: [oneOfOrEmpty(Array.from(ALLOWED_CONTAINER_COLORS))],
+    icon: [oneOfOrEmpty(Array.from(ALLOWED_CONTAINER_ICONS))],
 
     // url params
     url: [required, url],
@@ -61,17 +61,17 @@ const openerParamsSchema = {
 }
 
 export function parseOpenerParams(rawHash) {
-    if (rawHash[0] != '#') {
-        throw new Error('not a valid location hash')
+    if (!rawHash.startsWith('#')) {
+        throw new Error('Not a valid location hash')
     }
 
-    const uri = decodeURIComponent(rawHash.substring(1))
+    const uri = decodeURIComponent(rawHash.slice(1))
 
-    if (!uri.startsWith(customProtocolPrefix)) {
-        throw new Error('unknown URI protocol')
+    if (!uri.startsWith(CUSTOM_PROTOCOL_PREFIX)) {
+        throw new Error('Unknown URI protocol')
     }
 
-    const qs = new URLSearchParams(uri.substring(customProtocolPrefix.length))
-    
+    const qs = new URLSearchParams(uri.slice(CUSTOM_PROTOCOL_PREFIX.length))
+
     return sanitizeURLSearchParams(qs, openerParamsSchema)
 }

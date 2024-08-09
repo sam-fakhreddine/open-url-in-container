@@ -23,22 +23,23 @@ import { setupFolderFolding } from './folders.js'
 import {
     updateContainerSelector,
     updateContainerOptions,
-    setupContainerSelector
+    setupContainerSelector,
 } from './containers.js'
 
-function getHostname(url) {
-    return new URL(url).hostname
-}
+const getHostname = (url) => new URL(url).hostname
 
-async function updateLinks(containers, containerState) {
-    const selectedContainer = containers.find(c => c.cookieStoreId === containerState.selectedContainerId)
+const updateLinks = async (containers, containerState) => {
+    const selectedContainer = containers.find(
+        (c) => c.cookieStoreId === containerState.selectedContainerId
+    )
     const tab = await getActiveTab()
 
-    const containerProps = containerState.useHostnameForContainerName ?
-        {
-            name: getHostname(tab.url),
-        } : {
-            id: containerState.useContainerId ? selectedContainer.cookieStoreId : null,
+    const containerProps = containerState.useHostnameForContainerName
+        ? { name: getHostname(tab.url) }
+        : {
+            id: containerState.useContainerId
+                ? selectedContainer.cookieStoreId
+                : null,
             name: containerState.useContainerName ? selectedContainer.name : null,
         }
 
@@ -46,16 +47,21 @@ async function updateLinks(containers, containerState) {
         url: tab.url,
         ...containerProps,
     })
+
     const { queryString, signature } = await params.sign(await getSigningKey())
 
-    updateBookmarkLink(tab, queryString, containerProps.name || selectedContainer.name)
+    updateBookmarkLink(
+        tab,
+        queryString,
+        containerProps.name || selectedContainer.name
+    )
     updateURL(queryString)
     updateTerminalCommand(params, signature)
     updateSignatureCommand(signature)
 }
 
-async function main() {
-    // get containers
+const main = async () => {
+    // Get containers
     const containers = await browser.contextualIdentities.query({})
 
     const restoredContainerState = await restoreState(CONTAINER_SELECTOR_STATE, {
@@ -67,28 +73,31 @@ async function main() {
 
     const initialContainerState = {
         ...restoredContainerState,
-        ...{
-            // ensure that previously selected container still exists
-            selectedContainerId: containers.find(c => c.cookieStoreId === restoredContainerState.selectedContainerId) ?
-                restoredContainerState.selectedContainerId : containers[0].cookieStoreId
-        }
+        selectedContainerId: containers.find(
+            (c) => c.cookieStoreId === restoredContainerState.selectedContainerId
+        )
+            ? restoredContainerState.selectedContainerId
+            : containers[0].cookieStoreId,
     }
 
-    // create container state manager
-    const containerStateManager = new State(initialContainerState, function ({ newState }) {
-        updateLinks(containers, newState)
-        updateContainerOptions(newState)
-        saveState(CONTAINER_SELECTOR_STATE, newState)
-    })
+    // Create container state manager
+    const containerStateManager = new State(
+        initialContainerState,
+        ({ newState }) => {
+            updateLinks(containers, newState)
+            updateContainerOptions(newState)
+            saveState(CONTAINER_SELECTOR_STATE, newState)
+        }
+    )
 
-    // update container select & links & commands
+    // Update container select & links & commands
     updateContainerSelector(containers, initialContainerState)
     updateLinks(containers, initialContainerState)
 
-    // setup container selector
+    // Setup container selector
     setupContainerSelector(containers, containerStateManager)
 
-    // setup folders & display the UI
+    // Setup folders & display the UI
     setupFolderFolding()
 
     hide('loader')
